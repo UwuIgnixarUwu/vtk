@@ -58,7 +58,7 @@
         socket.on('update-students', (students) => {
             listEl.innerHTML = '';
             if (students.length === 0) {
-                listEl.innerHTML = '<li>Пока никто не зарегистрировался...</li>';
+                listEl.innerHTML = '<li>Әзірге ешкім тіркелген жоқ...</li>';
                 return;
             }
             students.forEach((student, index) => {
