@@ -1,52 +1,65 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="kk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Главный экран - Студенты</title>
+    <title>Басты бет - Студенттер</title>
     <style>
         body { font-family: Arial, sans-serif; display: flex; min-height: 100vh; margin: 0; background: #f4f7f6; }
-        .left { flex: 2; padding: 30px; overflow-y: auto; }
+        .left { flex: 2; padding: 30px; overflow-y: auto; display: flex; gap: 20px; }
+        .team-column { flex: 1; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .right { flex: 1; background: white; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #ddd; }
-        h1 { color: #333; font-size: 24px; }
+        h1 { color: #333; font-size: 22px; width: 100%; margin-top: 0; }
+        h2 { font-size: 18px; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 8px; }
         ul { list-style: none; padding: 0; }
-        li { background: white; padding: 12px 15px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 16px; }
+        li { background: #f9f9f9; padding: 10px 12px; margin-bottom: 8px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-size: 15px; }
         #qrcode { margin-top: 15px; }
         .admin-link { margin-top: 20px; color: #007bff; text-decoration: none; font-size: 14px; }
 
-        /* Адаптивность для телефонов и планшетов */
-        @media (max-width: 768px) {
-            body { flex-direction: column; height: auto; }
-            .right { border-left: none; border-top: 1px solid #ddd; padding: 20px; }
-            .left { padding: 20px; }
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .left { flex-direction: column; }
+            .right { border-left: none; border-top: 1px solid #ddd; }
         }
     </style>
 </head>
 <body>
 
     <div class="left">
-        <h1>Студенттер тізімі</h1>
-        <ul id="student-list">
-            <!-- Список динамически заполняется через JS -->
-        </ul>
+        <div style="width: 100%;">
+            <h1>Студенттер тізімі (Командалар бойынша)</h1>
+        </div>
+        
+        <div class="team-column">
+            <h2>1-ші Команда</h2>
+            <ul id="team1-list">
+                <li>Әзірге ешкім жоқ...</li>
+            </ul>
+        </div>
+
+        <div class="team-column">
+            <h2>2-ші Команда</h2>
+            <ul id="team2-list">
+                <li>Әзірге ешкім жоқ...</li>
+            </ul>
+        </div>
     </div>
 
     <div class="right">
         <h3>Тіркелу үшін сканерлеңіз:</h3>
-        <div id="qrcode">Загрузка QR-кода...</div>
+        <div id="qrcode">QR код жүктелуде...</div>
         <p id="url-text" style="font-size: 11px; color: #666; word-break: break-all; text-align: center; margin-top: 10px;"></p>
         <a class="admin-link" href="/admin.html" target="_blank">Әкімші панелі</a>
     </div>
 
-    <!-- Подключаем Socket.io клиент -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        const listEl = document.getElementById('student-list');
+        const team1List = document.getElementById('team1-list');
+        const team2List = document.getElementById('team2-list');
         const qrContainer = document.getElementById('qrcode');
         const urlText = document.getElementById('url-text');
 
-        // Получаем QR-код с сервера при загрузке
         fetch('/api/qrcode')
             .then(res => res.json())
             .then(data => {
@@ -54,18 +67,32 @@
                 urlText.innerText = data.registerUrl;
             });
 
-        // Слушаем обновление списка студентов от сервера в реальном времени
         socket.on('update-students', (students) => {
-            listEl.innerHTML = '';
-            if (students.length === 0) {
-                listEl.innerHTML = '<li>Әзірге ешкім тіркелген жоқ...</li>';
-                return;
+            team1List.innerHTML = '';
+            team2List.innerHTML = '';
+
+            const team1 = students.filter(s => s.team === '1');
+            const team2 = students.filter(s => s.team === '2');
+
+            if (team1.length === 0) {
+                team1List.innerHTML = '<li>Әзірге ешкім жоқ...</li>';
+            } else {
+                team1.forEach((student, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = `${index + 1}. ${student.firstName} ${student.lastName}`;
+                    team1List.appendChild(li);
+                });
             }
-            students.forEach((student, index) => {
-                const li = document.createElement('li');
-                li.textContent = `${index + 1}. ${student.firstName} ${student.lastName}`;
-                listEl.appendChild(li);
-            });
+
+            if (team2.length === 0) {
+                team2List.innerHTML = '<li>Әзірге ешкім жоқ...</li>';
+            } else {
+                team2.forEach((student, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = `${index + 1}. ${student.firstName} ${student.lastName}`;
+                    team2List.appendChild(li);
+                });
+            }
         });
     </script>
 </body>
