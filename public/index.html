@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главный экран - Студенты</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; min-height: 100vh; margin: 0; background: #f4f7f6; }
+        .left { flex: 2; padding: 30px; overflow-y: auto; }
+        .right { flex: 1; background: white; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #ddd; }
+        h1 { color: #333; font-size: 24px; }
+        ul { list-style: none; padding: 0; }
+        li { background: white; padding: 12px 15px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 16px; }
+        #qrcode { margin-top: 15px; }
+        .admin-link { margin-top: 20px; color: #007bff; text-decoration: none; font-size: 14px; }
+
+        /* Адаптивность для телефонов и планшетов */
+        @media (max-width: 768px) {
+            body { flex-direction: column; height: auto; }
+            .right { border-left: none; border-top: 1px solid #ddd; padding: 20px; }
+            .left { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="left">
+        <h1>Список студентов</h1>
+        <ul id="student-list">
+            <!-- Список динамически заполняется через JS -->
+        </ul>
+    </div>
+
+    <div class="right">
+        <h3>Отсканируйте для регистрации:</h3>
+        <div id="qrcode">Загрузка QR-кода...</div>
+        <p id="url-text" style="font-size: 11px; color: #666; word-break: break-all; text-align: center; margin-top: 10px;"></p>
+        <a class="admin-link" href="/admin.html" target="_blank">Панель администратора</a>
+    </div>
+
+    <!-- Подключаем Socket.io клиент -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const listEl = document.getElementById('student-list');
+        const qrContainer = document.getElementById('qrcode');
+        const urlText = document.getElementById('url-text');
+
+        // Получаем QR-код с сервера при загрузке
+        fetch('/api/qrcode')
+            .then(res => res.json())
+            .then(data => {
+                qrContainer.innerHTML = `<img src="${data.qrImage}" alt="QR Code" width="180">`;
+                urlText.innerText = data.registerUrl;
+            });
+
+        // Слушаем обновление списка студентов от сервера в реальном времени
+        socket.on('update-students', (students) => {
+            listEl.innerHTML = '';
+            if (students.length === 0) {
+                listEl.innerHTML = '<li>Пока никто не зарегистрировался...</li>';
+                return;
+            }
+            students.forEach((student, index) => {
+                const li = document.createElement('li');
+                li.textContent = `${index + 1}. ${student.firstName} ${student.lastName}`;
+                listEl.appendChild(li);
+            });
+        });
+    </script>
+</body>
+</html>

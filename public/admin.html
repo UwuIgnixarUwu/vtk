@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Панель Администратора</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 40px; background: #fff3f3; }
+        h1 { color: #d9534f; }
+        ul { list-style: none; padding: 0; max-width: 600px; }
+        li { background: white; padding: 12px 20px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        button { background: #d9534f; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
+        button:hover { background: c9302c; }
+    </style>
+</head>
+<body>
+    <h1>Панель Администратора (Удаление)</h1>
+    <p>Здесь вы можете удалять студентов из общего списка в реальном времени.</p>
+    <ul id="admin-student-list">
+        <!-- Список заполняется через JS -->
+    </ul>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const listEl = document.getElementById('admin-student-list');
+
+        socket.on('update-students', (students) => {
+            listEl.innerHTML = '';
+            if (students.length === 0) {
+                listEl.innerHTML = '<li>Список пуст</li>';
+                return;
+            }
+            students.forEach((student) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${student.firstName} ${student.lastName}</span>
+                    <button onclick="deleteStudent('${student.id}')">Удалить</button>
+                `;
+                listEl.appendChild(li);
+            });
+        });
+
+        function deleteStudent(id) {
+            if (confirm('Точно удалить этого студента?')) {
+                // Отправляем сигнал на сервер об удалении
+                socket.emit('delete-student', id);
+            }
+        }
+    </script>
+</body>
+</html>
