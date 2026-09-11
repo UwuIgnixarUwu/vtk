@@ -6,19 +6,20 @@
     <title>Басты бет - Студенттер</title>
     <style>
         body { font-family: Arial, sans-serif; display: flex; min-height: 100vh; margin: 0; background: #f4f7f6; }
-        .left { flex: 2; padding: 30px; overflow-y: auto; display: flex; gap: 20px; }
+        .left { flex: 2; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+        .teams-container { display: flex; gap: 20px; width: 100%; }
         .team-column { flex: 1; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .right { flex: 1; background: white; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #ddd; }
-        h1 { color: #333; font-size: 22px; width: 100%; margin-top: 0; }
-        h2 { font-size: 18px; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 8px; }
-        ul { list-style: none; padding: 0; }
+        h1 { color: #333; font-size: 22px; width: 100%; margin-top: 0; margin-bottom: 0; }
+        h2 { font-size: 18px; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 8px; margin-top: 0; }
+        ul { list-style: none; padding: 0; margin: 0; }
         li { background: #f9f9f9; padding: 10px 12px; margin-bottom: 8px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-size: 15px; }
         #qrcode { margin-top: 15px; }
         .admin-link { margin-top: 20px; color: #007bff; text-decoration: none; font-size: 14px; }
 
         @media (max-width: 900px) {
             body { flex-direction: column; }
-            .left { flex-direction: column; }
+            .teams-container { flex-direction: column; }
             .right { border-left: none; border-top: 1px solid #ddd; }
         }
     </style>
@@ -26,22 +27,24 @@
 <body>
 
     <div class="left">
-        <div style="width: 100%;">
+        <div>
             <h1>Студенттер тізімі (Командалар бойынша)</h1>
         </div>
         
-        <div class="team-column">
-            <h2>1-ші Команда</h2>
-            <ul id="team1-list">
-                <li>Әзірге ешкім жоқ...</li>
-            </ul>
-        </div>
+        <div class="teams-container">
+            <div class="team-column">
+                <h2>SmartTeam</h2>
+                <ul id="team1-list">
+                    <li>Әзірге ешкім жоқ...</li>
+                </ul>
+            </div>
 
-        <div class="team-column">
-            <h2>2-ші Команда</h2>
-            <ul id="team2-list">
-                <li>Әзірге ешкім жоқ...</li>
-            </ul>
+            <div class="team-column">
+                <h2>EduTeam</h2>
+                <ul id="team2-list">
+                    <li>Әзірге ешкім жоқ...</li>
+                </ul>
+            </div>
         </div>
     </div>
 
