@@ -27,19 +27,20 @@ app.get('/api/qrcode', async (req, res) => {
         const qrImage = await QRCode.toDataURL(registerUrl);
         res.json({ qrImage, registerUrl });
     } catch (err) {
-        res.status(500).send('Ошибка генерации QR-кода');
+        res.status(500).send('QR кодты генерациялау қатесі');
     }
 });
 
 // API: Регистрация студента
 app.post('/api/register', (req, res) => {
-    const { firstName, lastName } = req.body;
+    const { firstName, lastName, team } = req.body;
     
-    if (firstName && lastName) {
+    if (firstName && lastName && team) {
         const newStudent = {
             id: Date.now().toString(),
             firstName: firstName.trim(),
-            lastName: lastName.trim()
+            lastName: lastName.trim(),
+            team: team
         };
         
         students.push(newStudent);
@@ -47,10 +48,17 @@ app.post('/api/register', (req, res) => {
         // Рассылаем обновленный список ВСЕМ подключенным клиентам (в реальном времени)
         io.emit('update-students', students);
 
-        // Перенаправляем пользователя на страницу успеха или обратно на главную
-        res.send(`<h2>Регистрация прошла успешно, ${firstName}! Можете закрыть эту вкладку.</h2><a href="/">На главную</a>`);
+        // Перенаправляем пользователя на страницу успеха
+        res.send(`
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <body style="font-family: Arial; text-align: center; padding-top: 50px; background: #f4f7f6;">
+                <h2>Сәтті тіркелдіңіз, ${firstName}! Бұл бетті жабуға болады.</h2>
+                <a href="/" style="color: #007bff; text-decoration: none; font-size: 18px;">Басты бетке оралу</a>
+            </body>
+        `);
     } else {
-        res.status(400).send('Заполните все поля!');
+        res.status(400).send('Барлық өрістерді толтырыңыз!');
     }
 });
 
