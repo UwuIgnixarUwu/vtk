@@ -5,15 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Тіркелу</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 380px; text-align: center; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 15px; }
-        button { width: 100%; padding: 12px; background: #1cc88a; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-add { background: #4e73df; font-size: 18px; padding: 15px; }
+        body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; margin: 0; font-size: 18px; }
+        .card { background: white; padding: 35px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; }
+        h2 { color: #333; margin-top: 0; font-size: 26px; }
+        input, select { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 17px; }
+        button { width: 100%; padding: 15px; background: #1cc88a; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-add { background: #4e73df; font-size: 20px; padding: 16px; }
+        .btn-work { background: #8b5cf6; font-size: 17px; padding: 12px; margin-top: 5px; }
     </style>
 </head>
 <body>
     <div class="card">
+        <!-- 1-ҚАДАМ: ТІРКЕЛУ -->
         <div id="form-box">
             <h2>Қатысушыны тіркеу</h2>
             <input type="text" id="firstName" placeholder="Атыңыз" required>
@@ -24,16 +27,27 @@
                 <option value="EduTeam">EduTeam</option>
                 <option value="CreativeTeam">CreativeTeam</option>
             </select>
-            <input type="url" id="siteUrl" placeholder="Жоба/Сайт сілтемесі (http://...)">
             <button onclick="submitForm()">Тіркелу</button>
         </div>
 
+        <!-- 2-ҚАДАМ: ТІРКЕЛГЕННЕН КЕЙІН ЖҰМЫС СІЛТЕМЕСІ МЕН ҰПАЙ ҚОСУ -->
         <div id="registered-box" style="display: none;">
-            <h2>Сіз тіркелдіңіз!</h2>
+            <h2>Сіз тіркелдіңіз! ✅</h2>
             <p>Сәлем, <strong id="user-name"></strong>!</p>
-            <p>Командаңыз: <strong id="user-team" style="color:#4e73df; font-size:18px;"></strong></p>
+            <p>Командаңыз: <strong id="user-team" style="color:#4e73df; font-size:22px;"></strong></p>
+            
             <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
-            <p style="font-size: 14px;">Командаңызға +1 ұпай қосу:</p>
+            
+            <!-- ЖҰМЫС СІЛТЕМЕСІН ЖІБЕРУ -->
+            <div style="background:#f8f9fc; padding:15px; border-radius:8px; margin-bottom:20px;">
+                <label style="font-size:16px; font-weight:bold; display:block; margin-bottom:8px;">Командалық жұмыс сілтемесі:</label>
+                <input type="url" id="workUrl" placeholder="https://..." style="margin-top:0;">
+                <button class="btn-work" onclick="submitWorkUrl()">Жұмыс сілтемесін жіберу</button>
+                <p id="work-msg" style="color: #1cc88a; font-weight: bold; display: none; margin-top: 8px; font-size: 15px;">Жұмыс сілтемесі сақталды! 🚀</p>
+            </div>
+
+            <!-- ҰПАЙ ҚОСУ БАТЫРМАСЫ -->
+            <p style="font-size: 16px;">Өз командаңызға ұпай қосу:</p>
             <button class="btn-add" onclick="addScore()">+1 Ұпай өз командама!</button>
             <p id="msg" style="color: #1cc88a; font-weight: bold; display: none; margin-top: 10px;">Ұпай қосылды! 🎉</p>
         </div>
@@ -48,12 +62,11 @@
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
             const team = document.getElementById('team').value;
-            const siteUrl = document.getElementById('siteUrl').value.trim();
 
             if (firstName && lastName && team) {
-                socket.emit('register-student', { firstName, lastName, team, siteUrl });
+                socket.emit('register-student', { firstName, lastName, team });
             } else {
-                alert('Өтініш, міндетті өрістерді толтырыңыз!');
+                alert('Өтініш, барлық өрістерді толтырыңыз!');
             }
         }
 
@@ -63,6 +76,21 @@
             document.getElementById('registered-box').style.display = 'block';
             document.getElementById('user-name').innerText = `${student.firstName} ${student.lastName}`;
             document.getElementById('user-team').innerText = student.team;
+        });
+
+        function submitWorkUrl() {
+            const workUrl = document.getElementById('workUrl').value.trim();
+            if (workUrl && myTeam) {
+                socket.emit('submit-work-url', { team: myTeam, workUrl: workUrl });
+            } else {
+                alert('Өтініш, жұмыс сілтемесін енгізіңіз!');
+            }
+        }
+
+        socket.on('work-url-saved', () => {
+            const msg = document.getElementById('work-msg');
+            msg.style.display = 'block';
+            setTimeout(() => { msg.style.display = 'none'; }, 2500);
         });
 
         function addScore() {
