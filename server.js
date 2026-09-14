@@ -8,22 +8,21 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Фронтендке арналған статикалық бума
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Студенттер тізімі
+// Список участников
 let students = [];
 
-// Командалардың ұпайлары
+// Баллы команд (с новыми названиями)
 let scores = {
-    'Alfa': 0,
-    'Beta': 0,
+    'SmartTeam': 0,
+    'EduTeam': 0,
     'CreativeTeam': 0
 };
 
-// API: QR-код генерациясы
+// API: Генерация QR-кода
 app.get('/api/qrcode', async (req, res) => {
     try {
         const protocol = req.headers['x-forwarded-proto'] || req.protocol;
@@ -33,51 +32,33 @@ app.get('/api/qrcode', async (req, res) => {
         const qrImage = await QRCode.toDataURL(registerUrl);
         res.json({ qrImage, registerUrl });
     } catch (err) {
-        res.status(500).send('QR-код генерациялау қатесі');
+        res.status(500).send('Ошибка генерации QR-кода');
     }
 });
 
-// API: Студентті тіркеу
-app.post('/api/register', (req, res) => {
-    const { firstName, lastName, team } = req.body;
-    
-    if (firstName && lastName && team) {
-        const newStudent = {
-            id: Date.now().toString(),
-            firstName: firstName.trim(),
-            lastName: lastName.trim(),
-            team: team
-        };
-        
-        students.push(newStudent);
-
-        io.emit('update-students', students);
-
-        res.send(`
-            <div style="font-family: Arial; text-align: center; padding: 50px;">
-                <h2>Тіркелу сәтті өтті, ${firstName}!</h2>
-                <p>Топ: <strong>${team}</strong></p>
-                <a href="/scores.html">Ұпайлар бетіне өту</a>
-            </div>
-        `);
-    } else {
-        res.status(400).send('Барлық өрістерді толтырыңыз!');
-    }
-});
-
-// WebSocket арқылы онлайн байланыс
+// Socket.io соединение
 io.on('connection', (socket) => {
-    // Алғашқы деректерді жіберу
+    // Отправка первичных данных
     socket.emit('update-students', students);
     socket.emit('update-scores', scores);
 
-    // Студентті өшіру
-    socket.on('delete-student', (id) => {
-        students = students.filter(student => student.id !== id);
-        io.emit('update-students', students);
+    // Регистрация нового студента через Socket
+    socket.on('register-student', (data) => {
+        const { firstName, lastName, team } = data;
+        if (firstName && lastName && team && scores[team] !== undefined) {
+            const newStudent = {
+                id: Date.now().toString(),
+                firstName: firstName.trim(),
+                lastName: lastName.trim(),
+                team: team
+            };
+            students.push(newStudent);
+            io.emit('update-students', students);
+            socket.emit('registration-success', newStudent);
+        }
     });
 
-    // Ұпай қосу
+    // Добавление балла
     socket.on('add-score', (team) => {
         if (scores[team] !== undefined) {
             scores[team] += 1;
@@ -85,7 +66,7 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Ұпай азайту (убрать балл)
+    // Снятие балла (убрать балл)
     socket.on('minus-score', (team) => {
         if (scores[team] !== undefined && scores[team] > 0) {
             scores[team] -= 1;
@@ -93,14 +74,20 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Барлық ұпайларды нөлдеу (сброс)
+    // Сброс всех баллов
     socket.on('reset-scores', () => {
-        scores = { 'Alfa': 0, 'Beta': 0, 'CreativeTeam': 0 };
+        scores = { 'SmartTeam': 0, 'EduTeam': 0, 'CreativeTeam': 0 };
         io.emit('update-scores', scores);
+    });
+
+    // Удаление студента
+    socket.on('delete-student', (id) => {
+        students = students.filter(student => student.id !== id);
+        io.emit('update-students', students);
     });
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Сервер іске қосылды: http://localhost:${PORT}`);
+    console.log(`Сервер запущен: http://localhost:${PORT}`);
 });
