@@ -12,40 +12,60 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Қатысушылар тізімі
 let students = [];
 
-// Командалардың ұпайлары
-let scores = {
-    'SmartTeam': 0,
-    'EduTeam': 0,
-    'CreativeTeam': 0
+// Командалардың деректер құрылымы
+let teamsData = {
+    'SmartTeam': {
+        score: 0,
+        siteUrl: '',
+        aiCriteria: { functional: 0, design: 0, codeQuality: 0, prompt: 0, defense: 0 },
+        aiTotal: 0,
+        aiEvaluated: false
+    },
+    'EduTeam': {
+        score: 0,
+        siteUrl: '',
+        aiCriteria: { functional: 0, design: 0, codeQuality: 0, prompt: 0, defense: 0 },
+        aiTotal: 0,
+        aiEvaluated: false
+    },
+    'CreativeTeam': {
+        score: 0,
+        siteUrl: '',
+        aiCriteria: { functional: 0, design: 0, codeQuality: 0, prompt: 0, defense: 0 },
+        aiTotal: 0,
+        aiEvaluated: false
+    }
 };
 
-// API: QR-код генерациясы
+// Админ орнатқан ИИ бағаларының баптаулары (әдепкі мандер)
+let adminAiSettings = {
+    'SmartTeam': { functional: 5, design: 4, codeQuality: 5, prompt: 4, defense: 5 },
+    'EduTeam': { functional: 4, design: 5, codeQuality: 4, prompt: 5, defense: 4 },
+    'CreativeTeam': { functional: 5, design: 5, codeQuality: 4, prompt: 4, defense: 4 }
+};
+
 app.get('/api/qrcode', async (req, res) => {
     try {
         const protocol = req.headers['x-forwarded-proto'] || req.protocol;
         const host = req.get('host');
         const registerUrl = `${protocol}://${host}/register.html`;
-        
         const qrImage = await QRCode.toDataURL(registerUrl);
         res.json({ qrImage, registerUrl });
     } catch (err) {
-        res.status(500).send('QR-код генерациялау қатесі');
+        res.status(500).send('QR қатесі');
     }
 });
 
-// Socket.io байланысы
 io.on('connection', (socket) => {
-    // Бастапқы деректерді жіберу
     socket.emit('update-students', students);
-    socket.emit('update-scores', scores);
+    socket.emit('update-teams', teamsData);
+    socket.emit('update-admin-settings', adminAiSettings);
 
-    // Жаңа студентті Socket арқылы тіркеу
     socket.on('register-student', (data) => {
-        const { firstName, lastName, team } = data;
-        if (firstName && lastName && team && scores[team] !== undefined) {
+        const { firstName, lastName, team, siteUrl } = data;
+        if (firstName && lastName && team && teamsData[team]) {
             const newStudent = {
                 id: Date.now().toString(),
                 firstName: firstName.trim(),
@@ -53,41 +73,72 @@ io.on('connection', (socket) => {
                 team: team
             };
             students.push(newStudent);
+            if (siteUrl && siteUrl.trim() !== '') {
+                teamsData[team].siteUrl = siteUrl.trim();
+            }
             io.emit('update-students', students);
+            io.emit('update-teams', teamsData);
             socket.emit('registration-success', newStudent);
         }
     });
 
-    // Ұпай қосу
     socket.on('add-score', (team) => {
-        if (scores[team] !== undefined) {
-            scores[team] += 1;
-            io.emit('update-scores', scores);
+        if (teamsData[team]) {
+            teamsData[team].score += 1;
+            io.emit('update-teams', teamsData);
         }
     });
 
-    // Ұпайды азайту (алып тастау)
     socket.on('minus-score', (team) => {
-        if (scores[team] !== undefined && scores[team] > 0) {
-            scores[team] -= 1;
-            io.emit('update-scores', scores);
+        if (teamsData[team] && teamsData[team].score > 0) {
+            teamsData[team].score -= 1;
+            io.emit('update-teams', teamsData);
         }
     });
 
-    // Барлық ұпайларды нөлдеу
-    socket.on('reset-scores', () => {
-        scores = { 'SmartTeam': 0, 'EduTeam': 0, 'CreativeTeam': 0 };
-        io.emit('update-scores', scores);
+    // ИИ арқылы бағалау басталғанда әр критерий бойынша қадамдап баға беру анимациясы
+    socket.on('start-ai-evaluation', async (team) => {
+        if (!teamsData[team] || teamsData[team].aiEvaluated) return;
+
+        const settings = adminAiSettings[team];
+        const criteriaList = ['functional', 'design', 'codeQuality', 'prompt', 'defense'];
+        let runningTotal = 0;
+
+        // Әр критерийге ~3-4 секунд уақыт береді (жалпы командаға 15-20 сек ойлану анимациясы)
+        for (let key of criteriaList) {
+            await new Promise(resolve => setTimeout(resolve, 3500));
+            const val = settings[key] || 0;
+            teamsData[team].aiCriteria[key] = val;
+            runningTotal += val;
+            teamsData[team].aiTotal = runningTotal;
+            io.emit('update-teams', teamsData);
+        }
+
+        teamsData[team].score += teamsData[team].aiTotal;
+        teamsData[team].aiEvaluated = true;
+        io.emit('update-teams', teamsData);
     });
 
-    // Студентті өшіру
+    socket.on('save-admin-settings', (newSettings) => {
+        adminAiSettings = newSettings;
+        io.emit('update-admin-settings', adminAiSettings);
+    });
+
+    socket.on('reset-scores', () => {
+        for (let t in teamsData) {
+            teamsData[t].score = 0;
+            teamsData[t].aiTotal = 0;
+            teamsData[t].aiEvaluated = false;
+            teamsData[t].aiCriteria = { functional: 0, design: 0, codeQuality: 0, prompt: 0, defense: 0 };
+        }
+        io.emit('update-teams', teamsData);
+    });
+
     socket.on('delete-student', (id) => {
-        students = students.filter(student => student.id !== id);
+        students = students.filter(s => s.id !== id);
         io.emit('update-students', students);
     });
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Сервер іске қосылды: http://localhost:${PORT}`);
-});
+server.listen(PORT, () => console.log(`Сервер: http://localhost:${PORT}`));
