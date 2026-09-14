@@ -15,8 +15,10 @@
         .grid-inputs input { width: 100%; padding: 8px; font-size: 16px; box-sizing: border-box; }
         .btn-save { background: #1cc88a; color: white; border: none; padding: 14px 24px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         .btn-reset { background: #e74a3b; color: white; border: none; padding: 12px 22px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; }
-        .btn-minus { background: #f6c23e; color: #333; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; }
-        .team-score-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 18px; border-radius: 8px; border: 1px solid #e3e6f0; margin-bottom: 10px; }
+        .btn-minus { background: #f6c23e; color: #333; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; margin-right: 5px; }
+        .btn-del-url { background: #e74a3b; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; }
+        .team-score-row { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 14px 18px; border-radius: 8px; border: 1px solid #e3e6f0; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+        .url-text { font-size: 14px; color: #4e73df; word-break: break-all; display: block; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -24,8 +26,8 @@
 <div class="container">
     <h1>⚙️ Администратор Панелі</h1>
 
-    <!-- ҰПАЙЛАРДЫ ДӘЛ БАПТАУ (ЖЕКЕ АЗАЙТУ/ҚОСУ) -->
-    <h2>📊 Командалар ұпайын жеке азайту</h2>
+    <!-- ҰПАЙЛАР ЖӘНЕ СІЛТЕМЕЛЕРДІ БАСҚАРУ -->
+    <h2>📊 Командалар ұпайы мен жұмыс сілтемелерін басқару</h2>
     <div id="team-scores-control"></div>
 
     <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
@@ -41,7 +43,7 @@
 
     <!-- СБРОС ЖӘНЕ СТУДЕНТТЕР -->
     <h2>🗑️ Жалпы Сброс және Тізім</h2>
-    <button class="btn-reset" onclick="resetAll()"> Барлық ұпайды 0-ге түсіру (Жалпы Сброс)</button>
+    <button class="btn-reset" onclick="resetAll()">Барлық ұпайды 0-ге түсіру (Жалпы Сброс)</button>
 
     <h3 style="margin-top:25px;">Студенттер тізімі:</h3>
     <ul id="students-list" style="padding-left:20px;"></ul>
@@ -52,19 +54,24 @@
     const socket = io();
     let currentSettings = {};
 
-    // Команда ұпайларын жеке басқару терезесі
+    // Командалардың ұпайлары мен сілтемелерін реттеу блогы
     socket.on('update-teams', (teams) => {
         const container = document.getElementById('team-scores-control');
         container.innerHTML = '';
         for (let t in teams) {
+            const hasUrl = teams[t].workUrl && teams[t].workUrl.trim() !== '';
             container.innerHTML += `
                 <div class="team-score-row">
                     <div>
                         <strong style="font-size:20px;">${t}</strong> 
-                        <span style="margin-left:15px; font-weight:bold; color:#4e73df;">Қазіргі ұпай: ${teams[t].score}</span>
+                        <span style="margin-left:15px; font-weight:bold; color:#4e73df;">Ұпай: ${teams[t].score}</span>
+                        <span class="url-text">
+                            Жұмыс: ${hasUrl ? `<a href="${teams[t].workUrl}" target="_blank">${teams[t].workUrl}</a>` : '<i style="color:#e74a3b;">Жұмыс жоқ</i>'}
+                        </span>
                     </div>
                     <div>
-                        <button class="btn-minus" onclick="minusScore('${t}')">➖ 1 балды алып тастау (-1)</button>
+                        <button class="btn-minus" onclick="minusScore('${t}')">➖ 1 балды алу (-1)</button>
+                        ${hasUrl ? `<button class="btn-del-url" onclick="deleteWorkUrl('${t}')">🗑️ Сілтемені өшіру</button>` : ''}
                     </div>
                 </div>
             `;
@@ -73,6 +80,12 @@
 
     function minusScore(team) {
         socket.emit('minus-score', team);
+    }
+
+    function deleteWorkUrl(team) {
+        if (confirm(`${team} командасының жұмыс сілтемесін өшіруді растайсыз ба?`)) {
+            socket.emit('delete-work-url', team);
+        }
     }
 
     socket.on('update-admin-settings', (settings) => {
