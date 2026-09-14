@@ -1,51 +1,85 @@
 <!DOCTYPE html>
-<html lang="kk">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Басты бет - Студенттер</title>
+    <title>Главная - Команды и Участники</title>
     <style>
-        body { font-family: Arial, sans-serif; display: flex; min-height: 100vh; margin: 0; background: #f4f7f6; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; min-height: 100vh; margin: 0; background: #f0f2f5; }
         .left { flex: 2; padding: 30px; overflow-y: auto; }
-        .right { flex: 1; background: white; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #ddd; }
-        h1 { color: #333; font-size: 24px; }
-        ul { list-style: none; padding: 0; }
-        li { background: white; padding: 12px 15px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 16px; display: flex; justify-content: space-between; }
-        .team-badge { background: #007bff; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
-        #qrcode { margin-top: 15px; }
-        .btn-link { display: inline-block; margin-top: 15px; padding: 10px 15px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; text-align: center; }
-        .admin-link { margin-top: 15px; color: #007bff; text-decoration: none; font-size: 14px; }
+        .right { flex: 1; background: white; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #e0e0e0; }
+        h1 { color: #1a1a1a; margin-bottom: 25px; }
+        
+        /* Сетка для трех таблиц */
+        .teams-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+        .team-card { background: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid #007bff; }
+        .team-card.smart { border-top-color: #4e73df; }
+        .team-card.edu { border-top-color: #1cc88a; }
+        .team-card.creative { border-top-color: #f6c23e; }
+        
+        .team-card h2 { margin-top: 0; font-size: 18px; color: #333; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: left; padding: 8px 5px; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
+        th { color: #888; font-weight: 600; }
 
-        @media (max-width: 768px) {
-            body { flex-direction: column; height: auto; }
-            .right { border-left: none; border-top: 1px solid #ddd; padding: 20px; }
-            .left { padding: 20px; }
+        #qrcode { margin-top: 15px; }
+        .btn-link { display: inline-block; margin-top: 20px; padding: 12px 20px; background: #4e73df; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; }
+        .admin-link { margin-top: 15px; color: #858796; text-decoration: none; font-size: 13px; }
+
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .right { border-left: none; border-top: 1px solid #ddd; }
         }
     </style>
 </head>
 <body>
 
     <div class="left">
-        <h1>Студенттер тізімі</h1>
-        <ul id="student-list">
-            <!-- Тізім JS арқылы толады -->
-        </ul>
+        <h1>Участники по командам</h1>
+        
+        <div class="teams-grid">
+            <!-- Таблица 1: SmartTeam -->
+            <div class="team-card smart">
+                <h2>🚀 SmartTeam</h2>
+                <table>
+                    <thead><tr><th>№</th><th>Имя Фамилия</th></tr></thead>
+                    <tbody id="list-SmartTeam"><tr><td colspan="2" style="color:#aaa;">Нет участников</td></tr></tbody>
+                </table>
+            </div>
+
+            <!-- Таблица 2: EduTeam -->
+            <div class="team-card edu">
+                <h2>📚 EduTeam</h2>
+                <table>
+                    <thead><tr><th>№</th><th>Имя Фамилия</th></tr></thead>
+                    <tbody id="list-EduTeam"><tr><td colspan="2" style="color:#aaa;">Нет участников</td></tr></tbody>
+                </table>
+            </div>
+
+            <!-- Таблица 3: CreativeTeam -->
+            <div class="team-card creative">
+                <h2>🎨 CreativeTeam</h2>
+                <table>
+                    <thead><tr><th>№</th><th>Имя Фамилия</th></tr></thead>
+                    <tbody id="list-CreativeTeam"><tr><td colspan="2" style="color:#aaa;">Нет участников</td></tr></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <div class="right">
-        <h3>Тіркелу үшін QR-кодты сканерлеңіз:</h3>
-        <div id="qrcode">QR-код жүктелуде...</div>
-        <p id="url-text" style="font-size: 11px; color: #666; word-break: break-all; text-align: center; margin-top: 10px;"></p>
+        <h3>Отсканируйте для регистрации:</h3>
+        <div id="qrcode">Загрузка QR-кода...</div>
+        <p id="url-text" style="font-size: 11px; color: #777; word-break: break-all; text-align: center; margin-top: 10px;"></p>
         
-        <!-- Жаңа бетке өту батырмасы -->
-        <a class="btn-link" href="/scores.html">Ұпайлар шкаласына өту</a>
-        <a class="admin-link" href="/admin.html" target="_blank">Администратор панелі</a>
+        <a class="btn-link" href="/scores.html">🏆 Посмотреть баллы команд</a>
+        <a class="admin-link" href="/admin.html" target="_blank">Панель администратора</a>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        const listEl = document.getElementById('student-list');
         const qrContainer = document.getElementById('qrcode');
         const urlText = document.getElementById('url-text');
 
@@ -57,18 +91,22 @@
             });
 
         socket.on('update-students', (students) => {
-            listEl.innerHTML = '';
-            if (students.length === 0) {
-                listEl.innerHTML = '<li>Әзірге ешкім тіркелмеді...</li>';
-                return;
-            }
-            students.forEach((student, index) => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>${index + 1}. ${student.firstName} ${student.lastName}</span>
-                    <span class="team-badge">${student.team}</span>
-                `;
-                listEl.appendChild(li);
+            const teams = ['SmartTeam', 'EduTeam', 'CreativeTeam'];
+            
+            teams.forEach(team => {
+                const tbody = document.getElementById(`list-${team}`);
+                const teamStudents = students.filter(s => s.team === team);
+                
+                tbody.innerHTML = '';
+                if (teamStudents.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="2" style="color:#aaa; text-align:center;">Нет участников</td></tr>';
+                } else {
+                    teamStudents.forEach((student, index) => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `<td>${index + 1}</td><td>${student.firstName} ${student.lastName}</td>`;
+                        tbody.appendChild(tr);
+                    });
+                }
             });
         });
     </script>
