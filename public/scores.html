@@ -1,16 +1,15 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="kk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Табло баллов</title>
+    <title>Ұпайлар таблосы</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; padding: 20px; text-align: center; margin: 0; }
         .container { max-width: 700px; margin: 40px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
         h1 { color: #333; margin-bottom: 30px; }
         
-        /* Виджеты с баллами */
         .scores-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .score-card { background: #f8f9fc; border-radius: 10px; padding: 20px; box-shadow: inset 0 0 0 1px #e3e6f0; }
         .score-card.smart { border-bottom: 4px solid #4e73df; }
@@ -29,9 +28,8 @@
 <body>
 
 <div class="container">
-    <h1>🏆 Баллы команд</h1>
+    <h1>🏆 Командалар ұпайы</h1>
 
-    <!-- Красивые цифры баллов -->
     <div class="scores-grid">
         <div class="score-card smart">
             <div class="team-title">SmartTeam</div>
@@ -47,17 +45,15 @@
         </div>
     </div>
 
-    <!-- Кнопка вывода диаграммы -->
-    <button class="btn-summary" onclick="showChart()">Подвести итоги урока</button>
+    <button class="btn-summary" onclick="showChart()">Сабақ қорытындысын шығару</button>
 
-    <!-- Круговая диаграмма -->
     <div id="chart-container">
-        <h3>Итоги урока (Круговая диаграмма)</h3>
+        <h3>Сабақ қорытындысы (Дөңгелек диаграмма)</h3>
         <canvas id="myChart"></canvas>
     </div>
 
     <br><br>
-    <a href="/" style="color: #4e73df; text-decoration: none;">← На главную страницу</a>
+    <a href="/" style="color: #4e73df; text-decoration: none;">← Басты бетке оралу</a>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
