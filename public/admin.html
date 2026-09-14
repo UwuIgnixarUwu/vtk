@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="kk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Панель администратора</title>
+    <title>Администратор панелі</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; background: #fff5f5; margin: 0; }
         .admin-container { max-width: 700px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
@@ -26,41 +26,41 @@
 <body>
 
 <div class="admin-container">
-    <h1>⚙️ Панель администратора</h1>
+    <h1>⚙️ Администратор панелі</h1>
 
-    <h2>📊 Управление баллами</h2>
+    <h2>📊 Ұпайларды басқару</h2>
     
     <div class="score-card">
-        <span class="score-info">SmartTeam: <span id="score-SmartTeam">0</span> балла(ов)</span>
+        <span class="score-info">SmartTeam: <span id="score-SmartTeam">0</span> ұпай</span>
         <div>
-            <button class="score-btn btn-minus" onclick="minusScore('SmartTeam')">-1 Убрать</button>
-            <button class="score-btn btn-plus" onclick="addScore('SmartTeam')">+1 Добавить</button>
+            <button class="score-btn btn-minus" onclick="minusScore('SmartTeam')">-1 Азайту</button>
+            <button class="score-btn btn-plus" onclick="addScore('SmartTeam')">+1 Қосу</button>
         </div>
     </div>
 
     <div class="score-card">
-        <span class="score-info">EduTeam: <span id="score-EduTeam">0</span> балла(ов)</span>
+        <span class="score-info">EduTeam: <span id="score-EduTeam">0</span> ұпай</span>
         <div>
-            <button class="score-btn btn-minus" onclick="minusScore('EduTeam')">-1 Убрать</button>
-            <button class="score-btn btn-plus" onclick="addScore('EduTeam')">+1 Добавить</button>
+            <button class="score-btn btn-minus" onclick="minusScore('EduTeam')">-1 Азайту</button>
+            <button class="score-btn btn-plus" onclick="addScore('EduTeam')">+1 Қосу</button>
         </div>
     </div>
 
     <div class="score-card">
-        <span class="score-info">CreativeTeam: <span id="score-CreativeTeam">0</span> балла(ов)</span>
+        <span class="score-info">CreativeTeam: <span id="score-CreativeTeam">0</span> ұпай</span>
         <div>
-            <button class="score-btn btn-minus" onclick="minusScore('CreativeTeam')">-1 Убрать</button>
-            <button class="score-btn btn-plus" onclick="addScore('CreativeTeam')">+1 Добавить</button>
+            <button class="score-btn btn-minus" onclick="minusScore('CreativeTeam')">-1 Азайту</button>
+            <button class="score-btn btn-plus" onclick="addScore('CreativeTeam')">+1 Қосу</button>
         </div>
     </div>
 
-    <button class="btn-reset" onclick="resetScores()">Сбросить все баллы на 0</button>
+    <button class="btn-reset" onclick="resetScores()">Барлық ұпайды 0-ге түсіру (Нөлдеу)</button>
 
-    <h2>👥 Управление участниками</h2>
+    <h2>👥 Қатысушыларды басқару</h2>
     <ul id="admin-student-list"></ul>
     
     <br>
-    <a href="/scores.html" target="_blank" style="color: #4e73df; text-decoration: none;">Открыть табло баллов ↗</a>
+    <a href="/scores.html" target="_blank" style="color: #4e73df; text-decoration: none;">Ұпайлар таблосын ашу ↗</a>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
@@ -71,7 +71,7 @@
     function addScore(team) { socket.emit('add-score', team); }
     function minusScore(team) { socket.emit('minus-score', team); }
     function resetScores() {
-        if (confirm('Сбросить баллы всех команд на 0?')) socket.emit('reset-scores');
+        if (confirm('Барлық команданың ұпайларын 0-ге түсіргіңіз келе ме?')) socket.emit('reset-scores');
     }
 
     socket.on('update-scores', (scores) => {
@@ -83,21 +83,21 @@
     socket.on('update-students', (students) => {
         listEl.innerHTML = '';
         if (students.length === 0) {
-            listEl.innerHTML = '<li>Список участников пуст</li>';
+            listEl.innerHTML = '<li>Қатысушылар тізімі бос</li>';
             return;
         }
         students.forEach((student) => {
             const li = document.createElement('li');
             li.innerHTML = `
                 <span>${student.firstName} ${student.lastName} <span class="team-tag">${student.team}</span></span>
-                <button class="btn-delete" onclick="deleteStudent('${student.id}')">Удалить</button>
+                <button class="btn-delete" onclick="deleteStudent('${student.id}')">Өшіру</button>
             `;
             listEl.appendChild(li);
         });
     });
 
     function deleteStudent(id) {
-        if (confirm('Удалить участника из списка?')) socket.emit('delete-student', id);
+        if (confirm('Қатысушыны тізімнен өшіргіңіз келе ме?')) socket.emit('delete-student', id);
     }
 </script>
 </body>
