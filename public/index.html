@@ -3,109 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Басты бет - Командалар мен Қатысушылар</title>
+    <title>Басты бет - Командалар</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; min-height: 100vh; margin: 0; background: #f0f2f5; }
+        body { font-family: 'Segoe UI', sans-serif; display: flex; min-height: 100vh; margin: 0; background: #f0f2f5; }
         .left { flex: 2; padding: 30px; overflow-y: auto; }
         .right { flex: 1; background: white; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #e0e0e0; }
         h1 { color: #1a1a1a; margin-bottom: 25px; }
-        
         .teams-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
         .team-card { background: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid #007bff; }
         .team-card.smart { border-top-color: #4e73df; }
         .team-card.edu { border-top-color: #1cc88a; }
         .team-card.creative { border-top-color: #f6c23e; }
-        
-        .team-card h2 { margin-top: 0; font-size: 18px; color: #333; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .team-card h2 { margin: 0; font-size: 18px; text-align: center; }
+        .site-link { text-align: center; margin: 8px 0 15px 0; font-size: 13px; }
+        .site-link a { color: #4e73df; font-weight: bold; text-decoration: none; word-break: break-all; }
+        table { width: 100%; border-collapse: collapse; }
         th, td { text-align: left; padding: 8px 5px; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
-        th { color: #888; font-weight: 600; }
-
-        #qrcode { margin-top: 15px; }
+        th { color: #888; }
         .btn-link { display: inline-block; margin-top: 20px; padding: 12px 20px; background: #4e73df; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; }
         .admin-link { margin-top: 15px; color: #858796; text-decoration: none; font-size: 13px; }
-
-        @media (max-width: 900px) {
-            body { flex-direction: column; }
-            .right { border-left: none; border-top: 1px solid #ddd; }
-        }
+        @media (max-width: 900px) { body { flex-direction: column; } .right { border-left: none; border-top: 1px solid #ddd; } }
     </style>
 </head>
 <body>
-
     <div class="left">
         <h1>Командалар бойынша қатысушылар</h1>
-        
         <div class="teams-grid">
-            <!-- 1-Кесте: SmartTeam -->
             <div class="team-card smart">
                 <h2>🚀 SmartTeam</h2>
-                <table>
-                    <thead><tr><th>№</th><th>Аты-жөні</th></tr></thead>
-                    <tbody id="list-SmartTeam"><tr><td colspan="2" style="color:#aaa;">Қатысушылар жоқ</td></tr></tbody>
-                </table>
+                <div class="site-link" id="link-SmartTeam">Сайт: <i>Еңгізілмеді</i></div>
+                <table><thead><tr><th>№</th><th>Аты-жөні</th></tr></thead><tbody id="list-SmartTeam"></tbody></table>
             </div>
-
-            <!-- 2-Кесте: EduTeam -->
             <div class="team-card edu">
                 <h2>📚 EduTeam</h2>
-                <table>
-                    <thead><tr><th>№</th><th>Аты-жөні</th></tr></thead>
-                    <tbody id="list-EduTeam"><tr><td colspan="2" style="color:#aaa;">Қатысушылар жоқ</td></tr></tbody>
-                </table>
+                <div class="site-link" id="link-EduTeam">Сайт: <i>Еңгізілмеді</i></div>
+                <table><thead><tr><th>№</th><th>Аты-жөні</th></tr></thead><tbody id="list-EduTeam"></tbody></table>
             </div>
-
-            <!-- 3-Кесте: CreativeTeam -->
             <div class="team-card creative">
                 <h2>🎨 CreativeTeam</h2>
-                <table>
-                    <thead><tr><th>№</th><th>Аты-жөні</th></tr></thead>
-                    <tbody id="list-CreativeTeam"><tr><td colspan="2" style="color:#aaa;">Қатысушылар жоқ</td></tr></tbody>
-                </table>
+                <div class="site-link" id="link-CreativeTeam">Сайт: <i>Еңгізілмеді</i></div>
+                <table><thead><tr><th>№</th><th>Аты-жөні</th></tr></thead><tbody id="list-CreativeTeam"></tbody></table>
             </div>
         </div>
     </div>
-
     <div class="right">
         <h3>Тіркелу үшін сканерлеңіз:</h3>
         <div id="qrcode">QR-код жүктелуде...</div>
         <p id="url-text" style="font-size: 11px; color: #777; word-break: break-all; text-align: center; margin-top: 10px;"></p>
-        
-        <a class="btn-link" href="/scores.html">🏆 Командалар ұпайын қарау</a>
+        <a class="btn-link" href="/scores.html">🏆 Ұпайлар мен ИИ Жүдеу</a>
         <a class="admin-link" href="/admin.html" target="_blank">Администратор панелі</a>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        const qrContainer = document.getElementById('qrcode');
-        const urlText = document.getElementById('url-text');
+        fetch('/api/qrcode').then(res => res.json()).then(data => {
+            document.getElementById('qrcode').innerHTML = `<img src="${data.qrImage}" width="180">`;
+            document.getElementById('url-text').innerText = data.registerUrl;
+        });
 
-        fetch('/api/qrcode')
-            .then(res => res.json())
-            .then(data => {
-                qrContainer.innerHTML = `<img src="${data.qrImage}" alt="QR Code" width="180">`;
-                urlText.innerText = data.registerUrl;
-            });
+        socket.on('update-teams', (teams) => {
+            for (let t in teams) {
+                const el = document.getElementById(`link-${t}`);
+                if (teams[t].siteUrl) {
+                    el.innerHTML = `Сайт: <a href="${teams[t].siteUrl}" target="_blank">${teams[t].siteUrl}</a>`;
+                } else {
+                    el.innerHTML = `Сайт: <i>Еңгізілмеді</i>`;
+                }
+            }
+        });
 
         socket.on('update-students', (students) => {
-            const teams = ['SmartTeam', 'EduTeam', 'CreativeTeam'];
-            
-            teams.forEach(team => {
+            ['SmartTeam', 'EduTeam', 'CreativeTeam'].forEach(team => {
                 const tbody = document.getElementById(`list-${team}`);
-                const teamStudents = students.filter(s => s.team === team);
-                
-                tbody.innerHTML = '';
-                if (teamStudents.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="2" style="color:#aaa; text-align:center;">Қатысушылар жоқ</td></tr>';
-                } else {
-                    teamStudents.forEach((student, index) => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `<td>${index + 1}</td><td>${student.firstName} ${student.lastName}</td>`;
-                        tbody.appendChild(tr);
-                    });
-                }
+                const list = students.filter(s => s.team === team);
+                tbody.innerHTML = list.length === 0 ? '<tr><td colspan="2" style="color:#aaa; text-align:center;">Қатысушылар жоқ</td></tr>' : '';
+                list.forEach((s, i) => {
+                    tbody.innerHTML += `<tr><td>${i + 1}</td><td>${s.firstName} ${s.lastName}</td></tr>`;
+                });
             });
         });
     </script>
