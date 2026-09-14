@@ -5,15 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Админ панелі</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; padding: 25px; background: #fff5f5; margin: 0; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        h1 { color: #e74a3b; border-bottom: 2px solid #e74a3b; padding-bottom: 10px; margin-top: 0; }
-        .team-config { background: #f8f9fc; border: 1px solid #e3e6f0; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
-        .grid-inputs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
-        .grid-inputs label { font-size: 12px; color: #555; display: block; margin-bottom: 4px; }
-        .grid-inputs input { width: 100%; padding: 6px; font-size: 14px; box-sizing: border-box; }
-        .btn-save { background: #1cc88a; color: white; border: none; padding: 12px 20px; font-size: 15px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .btn-reset { background: #e74a3b; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; padding: 30px; background: #fff5f5; margin: 0; font-size: 18px; }
+        .container { max-width: 850px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        h1 { color: #e74a3b; border-bottom: 2px solid #e74a3b; padding-bottom: 12px; margin-top: 0; font-size: 30px; }
+        h2 { font-size: 22px; }
+        .team-config { background: #f8f9fc; border: 1px solid #e3e6f0; border-radius: 10px; padding: 18px; margin-bottom: 18px; }
+        .grid-inputs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 12px; }
+        .grid-inputs label { font-size: 14px; color: #555; display: block; margin-bottom: 4px; }
+        .grid-inputs input { width: 100%; padding: 8px; font-size: 16px; box-sizing: border-box; }
+        .btn-save { background: #1cc88a; color: white; border: none; padding: 14px 24px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .btn-reset { background: #e74a3b; color: white; border: none; padding: 12px 22px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 20px; font-size: 16px; }
     </style>
 </head>
 <body>
@@ -22,17 +23,17 @@
     <h1>⚙️ Администратор Панелі</h1>
 
     <h2>🤖 ИИ Бағаларын Алдын Ала Реттеу (0-5 баллы)</h2>
-    <p style="font-size: 13px; color: #666;">Мұнда әр команда үшін "Бағалау" батырмасын басқанда ИИ беретін балдарды алдын ала баптай аласыз:</p>
+    <p style="font-size: 15px; color: #666;">"Жұмысты бағалау" батырмасын басқанда ИИ беретін балдарды алдын ала реттеңіз:</p>
 
     <div id="admin-ai-settings"></div>
     <button class="btn-save" onclick="saveSettings()">Баптауларды сақтау</button>
 
-    <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+    <hr style="margin: 35px 0; border: none; border-top: 1px solid #eee;">
 
-    <h2>👥 Қатысушыларды өшіру және Барлық ұпайды сброс жасау</h2>
+    <h2>👥 Басқару және Сброс</h2>
     <button class="btn-reset" onclick="resetAll()">Барлық ұпайды 0-ге түсіру (Сброс)</button>
 
-    <h3 style="margin-top:20px;">Студенттер тізімі:</h3>
+    <h3 style="margin-top:25px;">Студенттер тізімі:</h3>
     <ul id="students-list" style="padding-left:20px;"></ul>
 </div>
 
@@ -54,7 +55,7 @@
             const s = settings[t];
             container.innerHTML += `
                 <div class="team-config">
-                    <strong>${t}</strong>
+                    <strong style="font-size:20px;">${t}</strong>
                     <div class="grid-inputs">
                         <div><label>Функционал</label><input type="number" min="0" max="5" id="${t}-functional" value="${s.functional}"></div>
                         <div><label>Дизайн</label><input type="number" min="0" max="5" id="${t}-design" value="${s.design}"></div>
@@ -80,7 +81,7 @@
     }
 
     function resetAll() {
-        if (confirm('Барлық ұпайды нөлдегіңіз келе ме?')) {
+        if (confirm('Барлық ұпай мен жұмыс сілтемелерін нөлдегіңіз келе ме?')) {
             socket.emit('reset-scores');
         }
     }
@@ -89,7 +90,7 @@
         const list = document.getElementById('students-list');
         list.innerHTML = students.length === 0 ? '<li>Қатысушылар жоқ</li>' : '';
         students.forEach(s => {
-            list.innerHTML += `<li>${s.firstName} ${s.lastName} (${s.team}) <button onclick="deleteStudent('${s.id}')">Өшіру</button></li>`;
+            list.innerHTML += `<li style="margin-bottom:8px;">${s.firstName} ${s.lastName} (${s.team}) <button style="background:#e74a3b; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer;" onclick="deleteStudent('${s.id}')">Өшіру</button></li>`;
         });
     });
 
