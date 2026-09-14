@@ -1,16 +1,15 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="kk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Главная - Команды и Участники</title>
+    <title>Басты бет - Командалар мен Қатысушылар</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; min-height: 100vh; margin: 0; background: #f0f2f5; }
         .left { flex: 2; padding: 30px; overflow-y: auto; }
         .right { flex: 1; background: white; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #e0e0e0; }
         h1 { color: #1a1a1a; margin-bottom: 25px; }
         
-        /* Сетка для трех таблиц */
         .teams-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
         .team-card { background: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid #007bff; }
         .team-card.smart { border-top-color: #4e73df; }
@@ -36,45 +35,45 @@
 <body>
 
     <div class="left">
-        <h1>Участники по командам</h1>
+        <h1>Командалар бойынша қатысушылар</h1>
         
         <div class="teams-grid">
-            <!-- Таблица 1: SmartTeam -->
+            <!-- 1-Кесте: SmartTeam -->
             <div class="team-card smart">
                 <h2>🚀 SmartTeam</h2>
                 <table>
-                    <thead><tr><th>№</th><th>Имя Фамилия</th></tr></thead>
-                    <tbody id="list-SmartTeam"><tr><td colspan="2" style="color:#aaa;">Нет участников</td></tr></tbody>
+                    <thead><tr><th>№</th><th>Аты-жөні</th></tr></thead>
+                    <tbody id="list-SmartTeam"><tr><td colspan="2" style="color:#aaa;">Қатысушылар жоқ</td></tr></tbody>
                 </table>
             </div>
 
-            <!-- Таблица 2: EduTeam -->
+            <!-- 2-Кесте: EduTeam -->
             <div class="team-card edu">
                 <h2>📚 EduTeam</h2>
                 <table>
-                    <thead><tr><th>№</th><th>Имя Фамилия</th></tr></thead>
-                    <tbody id="list-EduTeam"><tr><td colspan="2" style="color:#aaa;">Нет участников</td></tr></tbody>
+                    <thead><tr><th>№</th><th>Аты-жөні</th></tr></thead>
+                    <tbody id="list-EduTeam"><tr><td colspan="2" style="color:#aaa;">Қатысушылар жоқ</td></tr></tbody>
                 </table>
             </div>
 
-            <!-- Таблица 3: CreativeTeam -->
+            <!-- 3-Кесте: CreativeTeam -->
             <div class="team-card creative">
                 <h2>🎨 CreativeTeam</h2>
                 <table>
-                    <thead><tr><th>№</th><th>Имя Фамилия</th></tr></thead>
-                    <tbody id="list-CreativeTeam"><tr><td colspan="2" style="color:#aaa;">Нет участников</td></tr></tbody>
+                    <thead><tr><th>№</th><th>Аты-жөні</th></tr></thead>
+                    <tbody id="list-CreativeTeam"><tr><td colspan="2" style="color:#aaa;">Қатысушылар жоқ</td></tr></tbody>
                 </table>
             </div>
         </div>
     </div>
 
     <div class="right">
-        <h3>Отсканируйте для регистрации:</h3>
-        <div id="qrcode">Загрузка QR-кода...</div>
+        <h3>Тіркелу үшін сканерлеңіз:</h3>
+        <div id="qrcode">QR-код жүктелуде...</div>
         <p id="url-text" style="font-size: 11px; color: #777; word-break: break-all; text-align: center; margin-top: 10px;"></p>
         
-        <a class="btn-link" href="/scores.html">🏆 Посмотреть баллы команд</a>
-        <a class="admin-link" href="/admin.html" target="_blank">Панель администратора</a>
+        <a class="btn-link" href="/scores.html">🏆 Командалар ұпайын қарау</a>
+        <a class="admin-link" href="/admin.html" target="_blank">Администратор панелі</a>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -99,7 +98,7 @@
                 
                 tbody.innerHTML = '';
                 if (teamStudents.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="2" style="color:#aaa; text-align:center;">Нет участников</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="2" style="color:#aaa; text-align:center;">Қатысушылар жоқ</td></tr>';
                 } else {
                     teamStudents.forEach((student, index) => {
                         const tr = document.createElement('tr');
