@@ -76,7 +76,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Тіркелгеннен кейін жұмыс сілтемесін жіберу
     socket.on('submit-work-url', (data) => {
         const { team, workUrl } = data;
         if (teamsData[team] && workUrl) {
@@ -93,6 +92,7 @@ io.on('connection', (socket) => {
         }
     });
 
+    // Ұпайды 1 балға азайту
     socket.on('minus-score', (team) => {
         if (teamsData[team] && teamsData[team].score > 0) {
             teamsData[team].score -= 1;
