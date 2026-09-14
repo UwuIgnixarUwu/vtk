@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="kk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация участника</title>
+    <title>Қатысушыны тіркеу</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; margin: 0; }
         .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 380px; text-align: center; }
@@ -21,31 +21,31 @@
 <body>
 
     <div class="card">
-        <!-- ФОРМА РЕГИСТРАЦИИ -->
+        <!-- ТІРКЕЛУ ФОРМАСЫ -->
         <div id="form-box">
-            <h2>Регистрация</h2>
-            <input type="text" id="firstName" placeholder="Ваше имя" required>
-            <input type="text" id="lastName" placeholder="Ваша фамилия" required>
+            <h2>Тіркелу</h2>
+            <input type="text" id="firstName" placeholder="Атыңыз" required>
+            <input type="text" id="lastName" placeholder="Тегіңіз" required>
             <select id="team" required>
-                <option value="" disabled selected>Выберите команду</option>
+                <option value="" disabled selected>Команданы таңдаңыз</option>
                 <option value="SmartTeam">SmartTeam</option>
                 <option value="EduTeam">EduTeam</option>
                 <option value="CreativeTeam">CreativeTeam</option>
             </select>
-            <button onclick="submitForm()">Зарегистрироваться</button>
+            <button onclick="submitForm()">Тіркелу</button>
         </div>
 
-        <!-- БЛОК ПОСЛЕ РЕГИСТРАЦИИ -->
+        <!-- ТІРКЕЛГЕННЕН КЕЙІНГІ БЛОК -->
         <div id="registered-box" class="registered-box">
-            <h2>Вы успешно зарегистрированы!</h2>
-            <p>Привет, <strong id="user-display-name"></strong>!</p>
-            <p>Ваша команда: <br><span id="user-display-team" class="team-name"></span></p>
+            <h2>Тіркелу сәтті өтті!</h2>
+            <p>Сәлем, <strong id="user-display-name"></strong>!</p>
+            <p>Сіздің командаңыз: <br><span id="user-display-team" class="team-name"></span></p>
             
             <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
             
-            <p style="font-size: 14px; color: #555;">Нажмите кнопку ниже, чтобы принести балл своей команде:</p>
-            <button class="btn-add-score" onclick="addScoreToMyTeam()">+1 Балл моей команде!</button>
-            <p id="msg" style="color: #1cc88a; font-weight: bold; display: none; margin-top: 10px;">Балл успешно добавлен! 🎉</p>
+            <p style="font-size: 14px; color: #555;">Өз командаңызға ұпай қосу үшін төмендегі батырманы басыңыз:</p>
+            <button class="btn-add-score" onclick="addScoreToMyTeam()">+1 Ұпай өз командама!</button>
+            <p id="msg" style="color: #1cc88a; font-weight: bold; display: none; margin-top: 10px;">Ұпай сәтті қосылды! 🎉</p>
         </div>
     </div>
 
@@ -62,7 +62,7 @@
             if (firstName && lastName && team) {
                 socket.emit('register-student', { firstName, lastName, team });
             } else {
-                alert('Пожалуйста, заполните все поля!');
+                alert('Өтініш, барлық өрістерді толтырыңыз!');
             }
         }
 
