@@ -14,32 +14,30 @@ app.use(express.json());
 
 let students = [];
 
-// Командалардың деректер құрылымы
 let teamsData = {
     'SmartTeam': {
         score: 0,
-        siteUrl: '',
+        workUrl: '',
         aiCriteria: { functional: 0, design: 0, codeQuality: 0, prompt: 0, defense: 0 },
         aiTotal: 0,
         aiEvaluated: false
     },
     'EduTeam': {
         score: 0,
-        siteUrl: '',
+        workUrl: '',
         aiCriteria: { functional: 0, design: 0, codeQuality: 0, prompt: 0, defense: 0 },
         aiTotal: 0,
         aiEvaluated: false
     },
     'CreativeTeam': {
         score: 0,
-        siteUrl: '',
+        workUrl: '',
         aiCriteria: { functional: 0, design: 0, codeQuality: 0, prompt: 0, defense: 0 },
         aiTotal: 0,
         aiEvaluated: false
     }
 };
 
-// Админ орнатқан ИИ бағаларының баптаулары (әдепкі мандер)
 let adminAiSettings = {
     'SmartTeam': { functional: 5, design: 4, codeQuality: 5, prompt: 4, defense: 5 },
     'EduTeam': { functional: 4, design: 5, codeQuality: 4, prompt: 5, defense: 4 },
@@ -64,7 +62,7 @@ io.on('connection', (socket) => {
     socket.emit('update-admin-settings', adminAiSettings);
 
     socket.on('register-student', (data) => {
-        const { firstName, lastName, team, siteUrl } = data;
+        const { firstName, lastName, team } = data;
         if (firstName && lastName && team && teamsData[team]) {
             const newStudent = {
                 id: Date.now().toString(),
@@ -73,12 +71,18 @@ io.on('connection', (socket) => {
                 team: team
             };
             students.push(newStudent);
-            if (siteUrl && siteUrl.trim() !== '') {
-                teamsData[team].siteUrl = siteUrl.trim();
-            }
             io.emit('update-students', students);
-            io.emit('update-teams', teamsData);
             socket.emit('registration-success', newStudent);
+        }
+    });
+
+    // Тіркелгеннен кейін жұмыс сілтемесін жіберу
+    socket.on('submit-work-url', (data) => {
+        const { team, workUrl } = data;
+        if (teamsData[team] && workUrl) {
+            teamsData[team].workUrl = workUrl.trim();
+            io.emit('update-teams', teamsData);
+            socket.emit('work-url-saved');
         }
     });
 
@@ -96,7 +100,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // ИИ арқылы бағалау басталғанда әр критерий бойынша қадамдап баға беру анимациясы
     socket.on('start-ai-evaluation', async (team) => {
         if (!teamsData[team] || teamsData[team].aiEvaluated) return;
 
@@ -104,7 +107,6 @@ io.on('connection', (socket) => {
         const criteriaList = ['functional', 'design', 'codeQuality', 'prompt', 'defense'];
         let runningTotal = 0;
 
-        // Әр критерийге ~3-4 секунд уақыт береді (жалпы командаға 15-20 сек ойлану анимациясы)
         for (let key of criteriaList) {
             await new Promise(resolve => setTimeout(resolve, 3500));
             const val = settings[key] || 0;
@@ -127,6 +129,7 @@ io.on('connection', (socket) => {
     socket.on('reset-scores', () => {
         for (let t in teamsData) {
             teamsData[t].score = 0;
+            teamsData[t].workUrl = '';
             teamsData[t].aiTotal = 0;
             teamsData[t].aiEvaluated = false;
             teamsData[t].aiCriteria = { functional: 0, design: 0, codeQuality: 0, prompt: 0, defense: 0 };
