@@ -3,84 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Әкімші панелі</title>
+    <title>Администратор Панелі</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 30px; background: #fff3f3; }
-        h1 { color: #d9534f; font-size: 22px; }
-        .container { display: flex; gap: 20px; flex-wrap: wrap; }
-        .admin-column { flex: 1; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); min-width: 280px; }
-        h2 { font-size: 18px; color: #d9534f; border-bottom: 2px solid #d9534f; padding-bottom: 8px; }
+        body { font-family: Arial, sans-serif; padding: 30px; background: #fdf2f2; margin: 0; }
+        .admin-container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #d9534f; border-bottom: 2px solid #d9534f; padding-bottom: 10px; }
+        h2 { color: #333; margin-top: 30px; }
+        
+        /* Табло/Шкала ұпайлары */
+        .score-card { background: white; border: 1px solid #ddd; padding: 15px 20px; margin-bottom: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .score-info { font-size: 18px; font-weight: bold; }
+        .score-btn { padding: 8px 14px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; margin-left: 5px; }
+        .btn-plus { background: #28a745; color: white; }
+        .btn-minus { background: #ffc107; color: #333; }
+        .btn-reset { background: #dc3545; color: white; padding: 10px 20px; font-size: 14px; margin-top: 10px; border: none; border-radius: 5px; cursor: pointer; }
+
+        /* Студенттер тізімі */
         ul { list-style: none; padding: 0; }
-        li { background: #f9f9f9; padding: 10px 15px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
-        button { background: #d9534f; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 13px; }
-        button:hover { background: #c9302c; }
+        li { background: white; padding: 12px 20px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+        .btn-delete { background: #d9534f; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+        .team-tag { background: #6c757d; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px; margin-left: 10px; }
     </style>
 </head>
 <body>
-    <h1>Әкімші панелі (Студенттерді жою)</h1>
-    <p>Бұл жерден студенттерді командалар бойынша тізімнен өшіруге болады.</p>
 
-    <div class="container">
-        <div class="admin-column">
-            <h2>1-ші Команда</h2>
-            <ul id="admin-team1-list">
-                <li>Тізім бос...</li>
-            </ul>
-        </div>
+<div class="admin-container">
+    <h1>Администратор Панелі</h1>
 
-        <div class="admin-column">
-            <h2>2-ші Команда</h2>
-            <ul id="admin-team2-list">
-                <li>Тізім бос...</li>
-            </ul>
+    <!-- 1. ҰПАЙЛАРДЫ БАСҚАРУ БӨЛІМІ -->
+    <h2>📊 Диаграмма мен Ұпайларды басқару</h2>
+    
+    <div class="score-card">
+        <span class="score-info">Alfa: <span id="score-Alfa">0</span> балл</span>
+        <div>
+            <button class="score-btn btn-minus" onclick="minusScore('Alfa')">-1 Азайту</button>
+            <button class="score-btn btn-plus" onclick="addScore('Alfa')">+1 Қосу</button>
         </div>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-        const team1List = document.getElementById('admin-team1-list');
-        const team2List = document.getElementById('admin-team2-list');
+    <div class="score-card">
+        <span class="score-info">Beta: <span id="score-Beta">0</span> балл</span>
+        <div>
+            <button class="score-btn btn-minus" onclick="minusScore('Beta')">-1 Азайту</button>
+            <button class="score-btn btn-plus" onclick="addScore('Beta')">+1 Қосу</button>
+        </div>
+    </div>
 
-        socket.on('update-students', (students) => {
-            team1List.innerHTML = '';
-            team2List.innerHTML = '';
+    <div class="score-card">
+        <span class="score-info">CreativeTeam: <span id="score-CreativeTeam">0</span> балл</span>
+        <div>
+            <button class="score-btn btn-minus" onclick="minusScore('CreativeTeam')">-1 Азайту</button>
+            <button class="score-btn btn-plus" onclick="addScore('CreativeTeam')">+1 Қосу</button>
+        </div>
+    </div>
 
-            const team1 = students.filter(s => s.team === '1');
-            const team2 = students.filter(s => s.team === '2');
+    <button class="btn-reset" onclick="resetScores()">Барлық ұпайларды нөлдеу (Сброс)</button>
 
-            if (team1.length === 0) {
-                team1List.innerHTML = '<li>Тізім бос...</li>';
-            } else {
-                team1.forEach((student) => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <span>${student.firstName} ${student.lastName}</span>
-                        <button onclick="deleteStudent('${student.id}')">Жою</button>
-                    `;
-                    team1List.appendChild(li);
-                });
-            }
+    <!-- 2. СТУДЕНТТЕРДІ ӨШІРУ БӨЛІМІ -->
+    <h2>👥 Студенттер тізімі (Өшіру)</h2>
+    <ul id="admin-student-list">
+        <!-- Тізім динамикалы түрде толады -->
+    </ul>
+    
+    <br>
+    <a href="/scores.html" target="_blank" style="color: #007bff; text-decoration: none;">Ұпайлар бетін (scores.html) ашу ↗</a>
+</div>
 
-            if (team2.length === 0) {
-                team2List.innerHTML = '<li>Тізім бос...</li>';
-            } else {
-                team2.forEach((student) => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <span>${student.firstName} ${student.lastName}</span>
-                        <button onclick="deleteStudent('${student.id}')">Жою</button>
-                    `;
-                    team2List.appendChild(li);
-                });
-            }
-        });
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    const listEl = document.getElementById('admin-student-list');
 
-        function deleteStudent(id) {
-            if (confirm('Бұл студентті шынымен жойғыңыз келе ме?')) {
-                socket.emit('delete-student', id);
-            }
+    // Ұпай қосу
+    function addScore(team) {
+        socket.emit('add-score', team);
+    }
+
+    // Ұпайды азайту (убрать балл)
+    function minusScore(team) {
+        socket.emit('minus-score', team);
+    }
+
+    // Барлық ұпайларды нөлдеу
+    function resetScores() {
+        if (confirm('Барлық командалардың ұпайын 0-ге түсіргіңіз келе ме?')) {
+            socket.emit('reset-scores');
         }
-    </script>
+    }
+
+    // Ұпайларды нақты уақытта жаңарту
+    socket.on('update-scores', (scores) => {
+        document.getElementById('score-Alfa').innerText = scores.Alfa || 0;
+        document.getElementById('score-Beta').innerText = scores.Beta || 0;
+        document.getElementById('score-CreativeTeam').innerText = scores.CreativeTeam || 0;
+    });
+
+    // Студенттер тізімін жаңарту
+    socket.on('update-students', (students) => {
+        listEl.innerHTML = '';
+        if (students.length === 0) {
+            listEl.innerHTML = '<li>Тізім бос</li>';
+            return;
+        }
+        students.forEach((student) => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span>${student.firstName} ${student.lastName} <span class="team-tag">${student.team}</span></span>
+                <button class="btn-delete" onclick="deleteStudent('${student.id}')">Өшіру</button>
+            `;
+            listEl.appendChild(li);
+        });
+    });
+
+    // Студентті тізімнен өшіру
+    function deleteStudent(id) {
+        if (confirm('Бұл студентті тізімнен өшіргіңіз келетініне сенімдісіз бе?')) {
+            socket.emit('delete-student', id);
+        }
+    }
+</script>
 </body>
 </html>
