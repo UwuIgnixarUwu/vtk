@@ -85,6 +85,14 @@ io.on('connection', (socket) => {
         }
     });
 
+    // 🔗 Жұмыс сілтемесін Админ тарапынан өшіру
+    socket.on('delete-work-url', (team) => {
+        if (teamsData[team]) {
+            teamsData[team].workUrl = '';
+            io.emit('update-teams', teamsData);
+        }
+    });
+
     socket.on('add-score', (team) => {
         if (teamsData[team]) {
             teamsData[team].score += 1;
@@ -92,7 +100,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Ұпайды 1 балға азайту
     socket.on('minus-score', (team) => {
         if (teamsData[team] && teamsData[team].score > 0) {
             teamsData[team].score -= 1;
