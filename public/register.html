@@ -3,27 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Қатысушыны тіркеу</title>
+    <title>Тіркелу</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; margin: 0; }
+        body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; margin: 0; }
         .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 380px; text-align: center; }
-        h2 { color: #333; margin-top: 0; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 15px; }
         button { width: 100%; padding: 12px; background: #1cc88a; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        button:hover { background: #17a673; }
-        
-        .registered-box { display: none; }
-        .btn-add-score { background: #4e73df; font-size: 18px; padding: 15px; margin-top: 20px; }
-        .btn-add-score:hover { background: #2e59d9; }
-        .team-name { font-size: 20px; color: #4e73df; font-weight: bold; }
+        .btn-add { background: #4e73df; font-size: 18px; padding: 15px; }
     </style>
 </head>
 <body>
-
     <div class="card">
-        <!-- ТІРКЕЛУ ФОРМАСЫ -->
         <div id="form-box">
-            <h2>Тіркелу</h2>
+            <h2>Қатысушыны тіркеу</h2>
             <input type="text" id="firstName" placeholder="Атыңыз" required>
             <input type="text" id="lastName" placeholder="Тегіңіз" required>
             <select id="team" required>
@@ -32,20 +24,18 @@
                 <option value="EduTeam">EduTeam</option>
                 <option value="CreativeTeam">CreativeTeam</option>
             </select>
+            <input type="url" id="siteUrl" placeholder="Жоба/Сайт сілтемесі (http://...)">
             <button onclick="submitForm()">Тіркелу</button>
         </div>
 
-        <!-- ТІРКЕЛГЕННЕН КЕЙІНГІ БЛОК -->
-        <div id="registered-box" class="registered-box">
-            <h2>Тіркелу сәтті өтті!</h2>
-            <p>Сәлем, <strong id="user-display-name"></strong>!</p>
-            <p>Сіздің командаңыз: <br><span id="user-display-team" class="team-name"></span></p>
-            
-            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-            
-            <p style="font-size: 14px; color: #555;">Өз командаңызға ұпай қосу үшін төмендегі батырманы басыңыз:</p>
-            <button class="btn-add-score" onclick="addScoreToMyTeam()">+1 Ұпай өз командама!</button>
-            <p id="msg" style="color: #1cc88a; font-weight: bold; display: none; margin-top: 10px;">Ұпай сәтті қосылды! 🎉</p>
+        <div id="registered-box" style="display: none;">
+            <h2>Сіз тіркелдіңіз!</h2>
+            <p>Сәлем, <strong id="user-name"></strong>!</p>
+            <p>Командаңыз: <strong id="user-team" style="color:#4e73df; font-size:18px;"></strong></p>
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
+            <p style="font-size: 14px;">Командаңызға +1 ұпай қосу:</p>
+            <button class="btn-add" onclick="addScore()">+1 Ұпай өз командама!</button>
+            <p id="msg" style="color: #1cc88a; font-weight: bold; display: none; margin-top: 10px;">Ұпай қосылды! 🎉</p>
         </div>
     </div>
 
@@ -58,11 +48,12 @@
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
             const team = document.getElementById('team').value;
+            const siteUrl = document.getElementById('siteUrl').value.trim();
 
             if (firstName && lastName && team) {
-                socket.emit('register-student', { firstName, lastName, team });
+                socket.emit('register-student', { firstName, lastName, team, siteUrl });
             } else {
-                alert('Өтініш, барлық өрістерді толтырыңыз!');
+                alert('Өтініш, міндетті өрістерді толтырыңыз!');
             }
         }
 
@@ -70,11 +61,11 @@
             myTeam = student.team;
             document.getElementById('form-box').style.display = 'none';
             document.getElementById('registered-box').style.display = 'block';
-            document.getElementById('user-display-name').innerText = `${student.firstName} ${student.lastName}`;
-            document.getElementById('user-display-team').innerText = student.team;
+            document.getElementById('user-name').innerText = `${student.firstName} ${student.lastName}`;
+            document.getElementById('user-team').innerText = student.team;
         });
 
-        function addScoreToMyTeam() {
+        function addScore() {
             if (myTeam) {
                 socket.emit('add-score', myTeam);
                 const msg = document.getElementById('msg');
