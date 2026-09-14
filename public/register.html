@@ -1,32 +1,87 @@
 <!DOCTYPE html>
-<html lang="kk">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Студентті тіркеу</title>
+    <title>Регистрация участника</title>
     <style>
-        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f7f6; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h2 { text-align: center; color: #333; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
-        button:hover { background: #218838; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 380px; text-align: center; }
+        h2 { color: #333; margin-top: 0; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 12px; background: #1cc88a; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #17a673; }
+        
+        .registered-box { display: none; }
+        .btn-add-score { background: #4e73df; font-size: 18px; padding: 15px; margin-top: 20px; }
+        .btn-add-score:hover { background: #2e59d9; }
+        .team-name { font-size: 20px; color: #4e73df; font-weight: bold; }
     </style>
 </head>
 <body>
+
     <div class="card">
-        <h2>Тіркелу</h2>
-        <form action="/api/register" method="POST">
-            <input type="text" name="firstName" placeholder="Сіздің атыңыз" required>
-            <input type="text" name="lastName" placeholder="Сіздің тегіңіз" required>
-            <select name="team" required>
-                <option value="" disabled selected>Команданы таңдаңыз</option>
-                <option value="Alfa">Alfa</option>
-                <option value="Beta">Beta</option>
+        <!-- ФОРМА РЕГИСТРАЦИИ -->
+        <div id="form-box">
+            <h2>Регистрация</h2>
+            <input type="text" id="firstName" placeholder="Ваше имя" required>
+            <input type="text" id="lastName" placeholder="Ваша фамилия" required>
+            <select id="team" required>
+                <option value="" disabled selected>Выберите команду</option>
+                <option value="SmartTeam">SmartTeam</option>
+                <option value="EduTeam">EduTeam</option>
                 <option value="CreativeTeam">CreativeTeam</option>
             </select>
-            <button type="submit">Тіркелу</button>
-        </form>
+            <button onclick="submitForm()">Зарегистрироваться</button>
+        </div>
+
+        <!-- БЛОК ПОСЛЕ РЕГИСТРАЦИИ -->
+        <div id="registered-box" class="registered-box">
+            <h2>Вы успешно зарегистрированы!</h2>
+            <p>Привет, <strong id="user-display-name"></strong>!</p>
+            <p>Ваша команда: <br><span id="user-display-team" class="team-name"></span></p>
+            
+            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+            
+            <p style="font-size: 14px; color: #555;">Нажмите кнопку ниже, чтобы принести балл своей команде:</p>
+            <button class="btn-add-score" onclick="addScoreToMyTeam()">+1 Балл моей команде!</button>
+            <p id="msg" style="color: #1cc88a; font-weight: bold; display: none; margin-top: 10px;">Балл успешно добавлен! 🎉</p>
+        </div>
     </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let myTeam = null;
+
+        function submitForm() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const team = document.getElementById('team').value;
+
+            if (firstName && lastName && team) {
+                socket.emit('register-student', { firstName, lastName, team });
+            } else {
+                alert('Пожалуйста, заполните все поля!');
+            }
+        }
+
+        socket.on('registration-success', (student) => {
+            myTeam = student.team;
+            document.getElementById('form-box').style.display = 'none';
+            document.getElementById('registered-box').style.display = 'block';
+            document.getElementById('user-display-name').innerText = `${student.firstName} ${student.lastName}`;
+            document.getElementById('user-display-team').innerText = student.team;
+        });
+
+        function addScoreToMyTeam() {
+            if (myTeam) {
+                socket.emit('add-score', myTeam);
+                const msg = document.getElementById('msg');
+                msg.style.display = 'block';
+                setTimeout(() => { msg.style.display = 'none'; }, 2000);
+            }
+        }
+    </script>
 </body>
 </html>
