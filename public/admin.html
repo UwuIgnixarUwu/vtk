@@ -3,101 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Администратор панелі</title>
+    <title>Админ панелі</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; background: #fff5f5; margin: 0; }
-        .admin-container { max-width: 700px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        body { font-family: 'Segoe UI', sans-serif; padding: 25px; background: #fff5f5; margin: 0; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         h1 { color: #e74a3b; border-bottom: 2px solid #e74a3b; padding-bottom: 10px; margin-top: 0; }
-        h2 { color: #333; margin-top: 30px; font-size: 18px; }
-        
-        .score-card { background: #f8f9fc; border: 1px solid #e3e6f0; padding: 12px 20px; margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
-        .score-info { font-weight: bold; font-size: 16px; }
-        .score-btn { padding: 6px 12px; font-size: 14px; border: none; border-radius: 4px; cursor: pointer; margin-left: 5px; font-weight: bold; }
-        .btn-plus { background: #1cc88a; color: white; }
-        .btn-minus { background: #f6c23e; color: #333; }
-        .btn-reset { background: #e74a3b; color: white; padding: 10px 18px; font-size: 14px; margin-top: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-
-        ul { list-style: none; padding: 0; }
-        li { background: #f8f9fc; padding: 10px 15px; margin-bottom: 8px; border-radius: 6px; border: 1px solid #eaecf4; display: flex; justify-content: space-between; align-items: center; }
-        .btn-delete { background: #e74a3b; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-        .team-tag { background: #858796; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 8px; }
+        .team-config { background: #f8f9fc; border: 1px solid #e3e6f0; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .grid-inputs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
+        .grid-inputs label { font-size: 12px; color: #555; display: block; margin-bottom: 4px; }
+        .grid-inputs input { width: 100%; padding: 6px; font-size: 14px; box-sizing: border-box; }
+        .btn-save { background: #1cc88a; color: white; border: none; padding: 12px 20px; font-size: 15px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .btn-reset { background: #e74a3b; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="admin-container">
-    <h1>⚙️ Администратор панелі</h1>
+<div class="container">
+    <h1>⚙️ Администратор Панелі</h1>
 
-    <h2>📊 Ұпайларды басқару</h2>
-    
-    <div class="score-card">
-        <span class="score-info">SmartTeam: <span id="score-SmartTeam">0</span> ұпай</span>
-        <div>
-            <button class="score-btn btn-minus" onclick="minusScore('SmartTeam')">-1 Азайту</button>
-            <button class="score-btn btn-plus" onclick="addScore('SmartTeam')">+1 Қосу</button>
-        </div>
-    </div>
+    <h2>🤖 ИИ Бағаларын Алдын Ала Реттеу (0-5 баллы)</h2>
+    <p style="font-size: 13px; color: #666;">Мұнда әр команда үшін "Бағалау" батырмасын басқанда ИИ беретін балдарды алдын ала баптай аласыз:</p>
 
-    <div class="score-card">
-        <span class="score-info">EduTeam: <span id="score-EduTeam">0</span> ұпай</span>
-        <div>
-            <button class="score-btn btn-minus" onclick="minusScore('EduTeam')">-1 Азайту</button>
-            <button class="score-btn btn-plus" onclick="addScore('EduTeam')">+1 Қосу</button>
-        </div>
-    </div>
+    <div id="admin-ai-settings"></div>
+    <button class="btn-save" onclick="saveSettings()">Баптауларды сақтау</button>
 
-    <div class="score-card">
-        <span class="score-info">CreativeTeam: <span id="score-CreativeTeam">0</span> ұпай</span>
-        <div>
-            <button class="score-btn btn-minus" onclick="minusScore('CreativeTeam')">-1 Азайту</button>
-            <button class="score-btn btn-plus" onclick="addScore('CreativeTeam')">+1 Қосу</button>
-        </div>
-    </div>
+    <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
 
-    <button class="btn-reset" onclick="resetScores()">Барлық ұпайды 0-ге түсіру (Нөлдеу)</button>
+    <h2>👥 Қатысушыларды өшіру және Барлық ұпайды сброс жасау</h2>
+    <button class="btn-reset" onclick="resetAll()">Барлық ұпайды 0-ге түсіру (Сброс)</button>
 
-    <h2>👥 Қатысушыларды басқару</h2>
-    <ul id="admin-student-list"></ul>
-    
-    <br>
-    <a href="/scores.html" target="_blank" style="color: #4e73df; text-decoration: none;">Ұпайлар таблосын ашу ↗</a>
+    <h3 style="margin-top:20px;">Студенттер тізімі:</h3>
+    <ul id="students-list" style="padding-left:20px;"></ul>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
     const socket = io();
-    const listEl = document.getElementById('admin-student-list');
+    let currentSettings = {};
 
-    function addScore(team) { socket.emit('add-score', team); }
-    function minusScore(team) { socket.emit('minus-score', team); }
-    function resetScores() {
-        if (confirm('Барлық команданың ұпайларын 0-ге түсіргіңіз келе ме?')) socket.emit('reset-scores');
-    }
-
-    socket.on('update-scores', (scores) => {
-        document.getElementById('score-SmartTeam').innerText = scores.SmartTeam || 0;
-        document.getElementById('score-EduTeam').innerText = scores.EduTeam || 0;
-        document.getElementById('score-CreativeTeam').innerText = scores.CreativeTeam || 0;
+    socket.on('update-admin-settings', (settings) => {
+        currentSettings = settings;
+        renderAdminAiInputs(settings);
     });
 
-    socket.on('update-students', (students) => {
-        listEl.innerHTML = '';
-        if (students.length === 0) {
-            listEl.innerHTML = '<li>Қатысушылар тізімі бос</li>';
-            return;
-        }
-        students.forEach((student) => {
-            const li = document.createElement('li');
-            li.innerHTML = `
-                <span>${student.firstName} ${student.lastName} <span class="team-tag">${student.team}</span></span>
-                <button class="btn-delete" onclick="deleteStudent('${student.id}')">Өшіру</button>
+    function renderAdminAiInputs(settings) {
+        const container = document.getElementById('admin-ai-settings');
+        container.innerHTML = '';
+
+        for (let t in settings) {
+            const s = settings[t];
+            container.innerHTML += `
+                <div class="team-config">
+                    <strong>${t}</strong>
+                    <div class="grid-inputs">
+                        <div><label>Функционал</label><input type="number" min="0" max="5" id="${t}-functional" value="${s.functional}"></div>
+                        <div><label>Дизайн</label><input type="number" min="0" max="5" id="${t}-design" value="${s.design}"></div>
+                        <div><label>Код сапасы</label><input type="number" min="0" max="5" id="${t}-codeQuality" value="${s.codeQuality}"></div>
+                        <div><label>Промт</label><input type="number" min="0" max="5" id="${t}-prompt" value="${s.prompt}"></div>
+                        <div><label>Қорғау</label><input type="number" min="0" max="5" id="${t}-defense" value="${s.defense}"></div>
+                    </div>
+                </div>
             `;
-            listEl.appendChild(li);
+        }
+    }
+
+    function saveSettings() {
+        for (let t in currentSettings) {
+            currentSettings[t].functional = parseInt(document.getElementById(`${t}-functional`).value) || 0;
+            currentSettings[t].design = parseInt(document.getElementById(`${t}-design`).value) || 0;
+            currentSettings[t].codeQuality = parseInt(document.getElementById(`${t}-codeQuality`).value) || 0;
+            currentSettings[t].prompt = parseInt(document.getElementById(`${t}-prompt`).value) || 0;
+            currentSettings[t].defense = parseInt(document.getElementById(`${t}-defense`).value) || 0;
+        }
+        socket.emit('save-admin-settings', currentSettings);
+        alert('ИИ Баптаулары сәтті сақталды!');
+    }
+
+    function resetAll() {
+        if (confirm('Барлық ұпайды нөлдегіңіз келе ме?')) {
+            socket.emit('reset-scores');
+        }
+    }
+
+    socket.on('update-students', (students) => {
+        const list = document.getElementById('students-list');
+        list.innerHTML = students.length === 0 ? '<li>Қатысушылар жоқ</li>' : '';
+        students.forEach(s => {
+            list.innerHTML += `<li>${s.firstName} ${s.lastName} (${s.team}) <button onclick="deleteStudent('${s.id}')">Өшіру</button></li>`;
         });
     });
 
     function deleteStudent(id) {
-        if (confirm('Қатысушыны тізімнен өшіргіңіз келе ме?')) socket.emit('delete-student', id);
+        if (confirm('Студентті өшіру?')) socket.emit('delete-student', id);
     }
 </script>
 </body>
