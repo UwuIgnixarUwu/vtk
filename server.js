@@ -8,30 +8,36 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Статическая папка для фронтенда
+// Фронтендке арналған статикалық бума
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Список студентов (в памяти сервера)
+// Студенттер тізімі
 let students = [];
 
-// API: Генерация QR-кода (автоматически определяет протокол http/https и хост)
+// Командалардың ұпайлары
+let scores = {
+    'Alfa': 0,
+    'Beta': 0,
+    'CreativeTeam': 0
+};
+
+// API: QR-код генерациясы
 app.get('/api/qrcode', async (req, res) => {
     try {
         const protocol = req.headers['x-forwarded-proto'] || req.protocol;
         const host = req.get('host');
         const registerUrl = `${protocol}://${host}/register.html`;
         
-        // Генерируем QR-код в формате Data URL (картинка base64)
         const qrImage = await QRCode.toDataURL(registerUrl);
         res.json({ qrImage, registerUrl });
     } catch (err) {
-        res.status(500).send('QR кодты генерациялау қатесі');
+        res.status(500).send('QR-код генерациялау қатесі');
     }
 });
 
-// API: Регистрация студента
+// API: Студентті тіркеу
 app.post('/api/register', (req, res) => {
     const { firstName, lastName, team } = req.body;
     
@@ -45,38 +51,56 @@ app.post('/api/register', (req, res) => {
         
         students.push(newStudent);
 
-        // Рассылаем обновленный список ВСЕМ подключенным клиентам (в реальном времени)
         io.emit('update-students', students);
 
-        // Перенаправляем пользователя на страницу успеха
         res.send(`
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <body style="font-family: Arial; text-align: center; padding-top: 50px; background: #f4f7f6;">
-                <h2>Сәтті тіркелдіңіз, ${firstName}! Бұл бетті жабуға болады.</h2>
-                <a href="/" style="color: #007bff; text-decoration: none; font-size: 18px;">Басты бетке оралу</a>
-            </body>
+            <div style="font-family: Arial; text-align: center; padding: 50px;">
+                <h2>Тіркелу сәтті өтті, ${firstName}!</h2>
+                <p>Топ: <strong>${team}</strong></p>
+                <a href="/scores.html">Ұпайлар бетіне өту</a>
+            </div>
         `);
     } else {
         res.status(400).send('Барлық өрістерді толтырыңыз!');
     }
 });
 
-// WebSocket подключение
+// WebSocket арқылы онлайн байланыс
 io.on('connection', (socket) => {
-    // При подключении отправляем текущий список студентов
+    // Алғашқы деректерді жіберу
     socket.emit('update-students', students);
+    socket.emit('update-scores', scores);
 
-    // Удаление студента (доступно через админку)
+    // Студентті өшіру
     socket.on('delete-student', (id) => {
         students = students.filter(student => student.id !== id);
-        // Рассылаем обновленный список всем
         io.emit('update-students', students);
+    });
+
+    // Ұпай қосу
+    socket.on('add-score', (team) => {
+        if (scores[team] !== undefined) {
+            scores[team] += 1;
+            io.emit('update-scores', scores);
+        }
+    });
+
+    // Ұпай азайту (убрать балл)
+    socket.on('minus-score', (team) => {
+        if (scores[team] !== undefined && scores[team] > 0) {
+            scores[team] -= 1;
+            io.emit('update-scores', scores);
+        }
+    });
+
+    // Барлық ұпайларды нөлдеу (сброс)
+    socket.on('reset-scores', () => {
+        scores = { 'Alfa': 0, 'Beta': 0, 'CreativeTeam': 0 };
+        io.emit('update-scores', scores);
     });
 });
 
-// Используем порт хостинга или 3000 для локального теста
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Сервер запущен на порту ${PORT}`);
+    console.log(`Сервер іске қосылды: http://localhost:${PORT}`);
 });
