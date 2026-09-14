@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ұпайлар шкаласы</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f7f6; padding: 20px; text-align: center; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        .auth-box { margin-bottom: 25px; padding: 15px; background: #e9ecef; border-radius: 8px; }
+        input { padding: 10px; font-size: 16px; width: 60%; border: 1px solid #ccc; border-radius: 5px; }
+        .team-card { background: #fafafa; border: 1px solid #eee; padding: 15px; margin: 10px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        button { padding: 8px 15px; font-size: 14px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-add { background: #007bff; color: white; }
+        .btn-add:disabled { background: #cccccc; cursor: not-allowed; }
+        .btn-summary { background: #28a745; color: white; padding: 12px 20px; font-size: 16px; margin-top: 20px; }
+        #chart-container { margin-top: 30px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Командалар ұпайы</h1>
+
+    <!-- Авторизация/Атты растау блогы -->
+    <div class="auth-box" id="auth-box">
+        <p>Ұпай қосу үшін QR-код арқылы енгізген атыңызды жазыңыз:</p>
+        <input type="text" id="user-name" placeholder="Атыңызды енгізіңіз">
+        <button style="background: #17a2b8; color: white;" onclick="registerUser()">Растау</button>
+    </div>
+
+    <!-- Ұпайлар тізімі -->
+    <div id="teams-list">
+        <div class="team-card">
+            <span><strong>Alfa</strong>: <span id="score-Alfa">0</span> ұпай</span>
+            <button class="btn-add" id="btn-Alfa" disabled onclick="addScore('Alfa')">+1 Ұпай қосу</button>
+        </div>
+        <div class="team-card">
+            <span><strong>Beta</strong>: <span id="score-Beta">0</span> ұпай</span>
+            <button class="btn-add" id="btn-Beta" disabled onclick="addScore('Beta')">+1 Ұпай қосу</button>
+        </div>
+        <div class="team-card">
+            <span><strong>CreativeTeam</strong>: <span id="score-CreativeTeam">0</span> ұпай</span>
+            <button class="btn-add" id="btn-CreativeTeam" disabled onclick="addScore('CreativeTeam')">+1 Ұпай қосу</button>
+        </div>
+    </div>
+
+    <!-- Итог батырмасы -->
+    <button class="btn-summary" onclick="showChart()">Сабақ қорытындысын шығару</button>
+
+    <!-- Дөңгелек диаграмма -->
+    <div id="chart-container">
+        <h3>Сабақ қорытындысы (Дөңгелек диаграмма)</h3>
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <br><br>
+    <a href="/" style="color: #007bff; text-decoration: none;">← Басты бетке оралу</a>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    let currentScores = { Alfa: 0, Beta: 0, CreativeTeam: 0 };
+    let chartInstance = null;
+
+    // Студент атын енгізіп батырманы белсендіру
+    function registerUser() {
+        const name = document.getElementById('user-name').value.trim();
+        if (name !== "") {
+            document.getElementById('auth-box').innerHTML = `<p style="color: green;">Сәтті өттіңіз! Қош келдіңіз, <strong>${name}</strong>.</p>`;
+            document.querySelectorAll('.btn-add').forEach(btn => btn.disabled = false);
+        } else {
+            alert('Өтініш, атыңызды енгізіңіз!');
+        }
+    }
+
+    // Ұпай қосу
+    function addScore(team) {
+        socket.emit('add-score', team);
+    }
+
+    // Серверден ұпайларды жаңартып отыру
+    socket.on('update-scores', (scores) => {
+        currentScores = scores;
+        document.getElementById('score-Alfa').innerText = scores.Alfa || 0;
+        document.getElementById('score-Beta').innerText = scores.Beta || 0;
+        document.getElementById('score-CreativeTeam').innerText = scores.CreativeTeam || 0;
+        
+        // Диаграмма ашық болса, оны да жаңарту
+        if (chartInstance) {
+            updateChartData();
+        }
+    });
+
+    // Қорытынды диаграмманы көрсету
+    function showChart() {
+        document.getElementById('chart-container').style.display = 'block';
+        
+        const ctx = document.getElementById('myChart').getContext('2d');
+        
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        chartInstance = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Alfa', 'Beta', 'CreativeTeam'],
+                datasets: [{
+                    data: [currentScores.Alfa, currentScores.Beta, currentScores.CreativeTeam],
+                    backgroundColor: [
+                        '#ff6384', // Alfa түсі
+                        '#36a2eb', // Beta түсі
+                        '#ffce56'  // CreativeTeam түсі
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    }
+
+    function updateChartData() {
+        if (chartInstance) {
+            chartInstance.data.datasets[0].data = [currentScores.Alfa, currentScores.Beta, currentScores.CreativeTeam];
+            chartInstance.update();
+        }
+    }
+</script>
+</body>
+</html>
