@@ -12,17 +12,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Список участников
+// Қатысушылар тізімі
 let students = [];
 
-// Баллы команд (с новыми названиями)
+// Командалардың ұпайлары
 let scores = {
     'SmartTeam': 0,
     'EduTeam': 0,
     'CreativeTeam': 0
 };
 
-// API: Генерация QR-кода
+// API: QR-код генерациясы
 app.get('/api/qrcode', async (req, res) => {
     try {
         const protocol = req.headers['x-forwarded-proto'] || req.protocol;
@@ -32,17 +32,17 @@ app.get('/api/qrcode', async (req, res) => {
         const qrImage = await QRCode.toDataURL(registerUrl);
         res.json({ qrImage, registerUrl });
     } catch (err) {
-        res.status(500).send('Ошибка генерации QR-кода');
+        res.status(500).send('QR-код генерациялау қатесі');
     }
 });
 
-// Socket.io соединение
+// Socket.io байланысы
 io.on('connection', (socket) => {
-    // Отправка первичных данных
+    // Бастапқы деректерді жіберу
     socket.emit('update-students', students);
     socket.emit('update-scores', scores);
 
-    // Регистрация нового студента через Socket
+    // Жаңа студентті Socket арқылы тіркеу
     socket.on('register-student', (data) => {
         const { firstName, lastName, team } = data;
         if (firstName && lastName && team && scores[team] !== undefined) {
@@ -58,7 +58,7 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Добавление балла
+    // Ұпай қосу
     socket.on('add-score', (team) => {
         if (scores[team] !== undefined) {
             scores[team] += 1;
@@ -66,7 +66,7 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Снятие балла (убрать балл)
+    // Ұпайды азайту (алып тастау)
     socket.on('minus-score', (team) => {
         if (scores[team] !== undefined && scores[team] > 0) {
             scores[team] -= 1;
@@ -74,13 +74,13 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Сброс всех баллов
+    // Барлық ұпайларды нөлдеу
     socket.on('reset-scores', () => {
         scores = { 'SmartTeam': 0, 'EduTeam': 0, 'CreativeTeam': 0 };
         io.emit('update-scores', scores);
     });
 
-    // Удаление студента
+    // Студентті өшіру
     socket.on('delete-student', (id) => {
         students = students.filter(student => student.id !== id);
         io.emit('update-students', students);
@@ -89,5 +89,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Сервер запущен: http://localhost:${PORT}`);
+    console.log(`Сервер іске қосылды: http://localhost:${PORT}`);
 });
